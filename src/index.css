@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-brand: #087f75;
+  --color-brand-strong: #06655d;
+  --color-ink: #123b5d;
+  --color-soft: #ddf5ef;
+  --color-page: #f5f8fa;
+  --color-card: #ffffff;
+  --color-muted: #475d72;
+  --color-line: #d6e1e8;
+  --color-danger: #b42318;
+  --color-warn: #8a5a00;
+  --color-warn-soft: #fff4d6;
+}
+
+/* Modo alto contraste: ativado pelo botão de acessibilidade */
+html.hc {
+  --color-brand: #00463f;
+  --color-brand-strong: #002e29;
+  --color-ink: #000000;
+  --color-soft: #fff2a8;
+  --color-page: #ffffff;
+  --color-card: #ffffff;
+  --color-muted: #111111;
+  --color-line: #000000;
+  --color-danger: #8f0000;
+}
+html.hc .card { border-width: 2px; box-shadow: none; }
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+}
+
+/* Foco programático ao trocar de página não deve desenhar contorno */
+#conteudo:focus, #conteudo:focus-visible { outline: none; }
