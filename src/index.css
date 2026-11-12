@@ -53,3 +53,20 @@ body {
 
 /* Foco programático ao trocar de página não deve desenhar contorno */
 #conteudo:focus, #conteudo:focus-visible { outline: none; }
+
+/* Opções em cartão (rádio/checkbox escondido): mostra o foco do teclado no cartão inteiro */
+label:has(> input.sr-only:focus-visible) { outline: 3px solid #f59e0b; outline-offset: 2px; }
+
+/* Impressão da carteirinha em tamanho de cartão (85,6 × 54 mm) */
+.cartao-impressao { display: none; }
+@media print {
+  html.imprimir-cartao body > *:not(.cartao-impressao) { display: none !important; }
+  html.imprimir-cartao .cartao-impressao { display: block; width: 85.6mm; height: 54mm; margin: 12mm; border-radius: 3.5mm; }
+}
+
+/* Impressão da ficha de acesso (senha do paciente) */
+@media print {
+  html.imprimir-ficha body * { visibility: hidden; }
+  html.imprimir-ficha .ficha-acesso, html.imprimir-ficha .ficha-acesso * { visibility: visible; }
+  html.imprimir-ficha .ficha-acesso { position: fixed; top: 12mm; left: 12mm; right: 12mm; }
+}

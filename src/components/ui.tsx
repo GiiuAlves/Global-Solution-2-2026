@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import { Volume2, Square } from 'lucide-react'
+import { Volume2, Square, AlertCircle } from 'lucide-react'
 import { useA11y } from '../context/A11yContext'
 
 type Variante = 'primary' | 'secondary' | 'ghost' | 'danger'
@@ -42,16 +42,42 @@ export function PageHeader({ titulo, descricao, acao }: { titulo: string; descri
 export const inputClass =
   'w-full min-h-12 rounded-xl border-2 border-line bg-card px-4 py-2 text-base text-ink placeholder:text-muted/70 focus:border-brand focus:outline-none'
 
-export function Field({ id, label, dica, obrigatorio, children }: { id: string; label: string; dica?: string; obrigatorio?: boolean; children: ReactNode }) {
+/** Classe do campo, com borda vermelha quando há erro. */
+export const campoClass = (erro?: string, extra = '') => `${inputClass} ${erro ? '!border-danger bg-danger/[0.03]' : ''} ${extra}`
+
+/** Atributos de acessibilidade do campo: id, aria-invalid e aria-describedby (dica + erro). */
+export function aria(id: string, erro?: string, dica?: boolean) {
+  const desc = [dica && `${id}-dica`, erro && `${id}-erro`].filter(Boolean).join(' ')
+  return { id, 'aria-invalid': erro ? (true as const) : undefined, 'aria-describedby': desc || undefined }
+}
+
+export function Field({ id, label, dica, erro, obrigatorio, children }: { id: string; label: string; dica?: string; erro?: string; obrigatorio?: boolean; children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex min-w-0 flex-col gap-1.5">
       <label htmlFor={id} className="font-bold text-ink">
         {label} {obrigatorio && <span className="text-danger" aria-hidden>*</span>}
         {obrigatorio && <span className="sr-only">(obrigatório)</span>}
       </label>
       {children}
-      {dica && <p id={`${id}-dica`} className="text-sm text-muted">{dica}</p>}
+      {dica && !erro && <p id={`${id}-dica`} className="text-sm text-muted">{dica}</p>}
+      {erro && (
+        <p id={`${id}-erro`} className="flex items-start gap-1.5 text-sm font-bold text-danger">
+          <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden />
+          {erro}
+        </p>
+      )}
     </div>
+  )
+}
+
+/** Resumo de erros no topo do formulário, anunciado pelo leitor de tela. */
+export function ResumoErros({ quantidade }: { quantidade: number }) {
+  if (!quantidade) return null
+  return (
+    <p role="alert" className="flex items-center gap-2 rounded-xl bg-danger/10 px-4 py-3 font-bold text-danger">
+      <AlertCircle size={20} aria-hidden />
+      {quantidade === 1 ? 'Falta corrigir 1 campo.' : `Faltam corrigir ${quantidade} campos.`} Veja as mensagens em vermelho.
+    </p>
   )
 }
 

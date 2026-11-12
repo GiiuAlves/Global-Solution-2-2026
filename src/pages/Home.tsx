@@ -1,18 +1,19 @@
 import { Link } from 'react-router-dom'
 import {
-  CalendarDays, Pill, IdCard, BarChart3, Type, Contrast, Volume2, Keyboard, Hand,
-  QrCode, ShieldCheck, HeartPulse, Scale, ArrowRight, UserRound,
+  Pill, IdCard, BarChart3, Type, Contrast, Volume2, Keyboard, Hand, AlarmClock,
+  QrCode, ShieldCheck, HeartPulse, Scale, ArrowRight, UserRound, Stethoscope,
 } from 'lucide-react'
 import { Logo } from '../components/Logo'
 import { A11yToolbar } from '../components/A11yToolbar'
 import { HealthCard } from '../components/HealthCard'
 import { btnClass } from '../components/ui'
+import { inicioDoPerfil, useAuth } from '../context/AuthContext'
 
 const RECURSOS = [
-  { icone: CalendarDays, titulo: 'Consultas organizadas', texto: 'Anote suas consultas e veja as próximas datas em um só lugar.' },
-  { icone: Pill, titulo: 'Remédios e horários', texto: 'Registre cada medicamento e os horários do dia, sem confusão.' },
-  { icone: IdCard, titulo: 'Carteirinha com QR Code', texto: 'Informações essenciais para emergências, compartilhadas só com a sua autorização.' },
-  { icone: BarChart3, titulo: 'Seus números de saúde', texto: 'Painel simples mostra consultas por mês, especialidades e doses diárias.' },
+  { icone: Stethoscope, titulo: 'Ficha feita pelo profissional', texto: 'O médico ou a equipe cadastra o paciente, a prescrição e as consultas. Sem risco de dose errada digitada em casa.' },
+  { icone: Pill, titulo: '"Tomei" com um toque', texto: 'O paciente vê os remédios do dia e confirma cada dose. Simples para quem tem pouca prática com celular.' },
+  { icone: AlarmClock, titulo: 'Alarme e agenda do celular', texto: 'Cada remédio e consulta vai para a agenda do celular, que toca na hora certa.' },
+  { icone: BarChart3, titulo: 'Adesão acompanhada', texto: 'O profissional vê quem está esquecendo doses e age antes de o tratamento falhar.' },
 ]
 
 const ACESSIBILIDADE = [
@@ -24,12 +25,14 @@ const ACESSIBILIDADE = [
 ]
 
 const PASSOS = [
-  { n: 1, titulo: 'Você escolhe o que compartilhar', texto: 'Tipo sanguíneo, alergias, contato de emergência… só o que você marcar.' },
-  { n: 2, titulo: 'Mostra o QR Code', texto: 'O código guarda apenas um link seguro — nenhum dado médico fica dentro dele.' },
-  { n: 3, titulo: 'Quem escaneia vê o essencial', texto: 'E você pode revogar o acesso ou gerar um novo código quando quiser.' },
+  { n: 1, titulo: 'O profissional cadastra', texto: 'Dados, contato de emergência, acessibilidade e prescrição. O paciente recebe CPF + senha impressos.' },
+  { n: 2, titulo: 'O paciente acompanha', texto: 'Vê remédios e consultas, aperta "Tomei" e recebe alarmes. Não consegue alterar nada por engano.' },
+  { n: 3, titulo: 'O QR Code abre a ficha', texto: 'Qualquer pessoa vê o resumo de emergência. Um profissional logado vê a ficha técnica completa.' },
 ]
 
 export default function Home() {
+  const { sessao } = useAuth()
+  const inicio = sessao ? inicioDoPerfil(sessao.perfil) : null
   return (
     <div className="min-h-dvh bg-card">
       <a href="#conteudo" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-xl focus:bg-ink focus:px-4 focus:py-3 focus:text-white">
@@ -42,12 +45,12 @@ export default function Home() {
           <nav aria-label="Seções" className="hidden items-center gap-6 font-bold text-ink md:flex">
             <a href="#recursos" className="hover:text-brand">Recursos</a>
             <a href="#acessibilidade" className="hover:text-brand">Acessibilidade</a>
-            <a href="#carteirinha" className="hover:text-brand">Carteirinha</a>
+            <a href="#como-funciona" className="hover:text-brand">Como funciona</a>
             <a href="#impacto" className="hover:text-brand">Impacto</a>
           </nav>
           <div className="flex items-center gap-2">
             <div className="hidden sm:block"><A11yToolbar /></div>
-            <Link to="/dashboard" className={btnClass('primary', '!min-h-11')}>Entrar</Link>
+            <Link to={inicio ?? '/entrar'} className={btnClass('primary', '!min-h-11')}>{inicio ? 'Meu painel' : 'Entrar'}</Link>
           </div>
         </div>
       </header>
@@ -64,16 +67,20 @@ export default function Home() {
                 Sua saúde organizada, <span className="text-brand">simples e acessível.</span>
               </h1>
               <p className="mt-5 max-w-xl text-xl leading-relaxed text-muted">
-                Gerencie consultas, acompanhe seus remédios e tenha suas informações essenciais sempre à mão — com letras grandes, alto contraste e leitura em voz alta.
+                O profissional de saúde cadastra a ficha e a prescrição. O paciente acompanha os remédios do dia, recebe alarmes e leva a carteirinha com QR Code — com letras grandes, alto contraste e leitura em voz alta.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link to="/dashboard" className={btnClass('primary', '!min-h-14 !px-7 text-lg')}>
-                  Começar agora <ArrowRight size={20} aria-hidden />
-                </Link>
-                <a href="#recursos" className={btnClass('secondary', '!min-h-14 !px-7 text-lg')}>Conhecer recursos</a>
+                {inicio ? (
+                  <Link to={inicio} className={btnClass('primary', '!min-h-14 !px-7 text-lg')}>Ir para meu painel <ArrowRight size={20} aria-hidden /></Link>
+                ) : (
+                  <>
+                    <Link to="/entrar" state={{ perfil: 'PACIENTE' }} className={btnClass('primary', '!min-h-14 !px-7 text-lg')}><UserRound size={20} aria-hidden /> Sou paciente</Link>
+                    <Link to="/entrar" state={{ perfil: 'PROFISSIONAL' }} className={btnClass('secondary', '!min-h-14 !px-7 text-lg')}><Stethoscope size={20} aria-hidden /> Sou profissional</Link>
+                  </>
+                )}
               </div>
               <p className="mt-6 flex items-center gap-2 text-muted">
-                <ShieldCheck size={20} className="text-brand" aria-hidden /> Você decide quem vê seus dados.
+                <ShieldCheck size={20} className="text-brand" aria-hidden /> Só o profissional edita. Toda alteração fica registrada.
               </p>
             </div>
             <div className="flex justify-center md:justify-end">
@@ -87,8 +94,8 @@ export default function Home() {
 
         {/* RECURSOS */}
         <section id="recursos" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20">
-          <h2 className="text-3xl font-extrabold tracking-tight text-ink">Tudo o que você precisa, sem complicação</h2>
-          <p className="mt-2 max-w-2xl text-lg text-muted">Poucas telas, linguagem simples e ações diretas.</p>
+          <h2 className="text-3xl font-extrabold tracking-tight text-ink">Cada um faz a parte que sabe fazer</h2>
+          <p className="mt-2 max-w-2xl text-lg text-muted">O profissional cuida da informação técnica. O paciente só precisa seguir e confirmar.</p>
           <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {RECURSOS.map(({ icone: I, titulo, texto }) => (
               <li key={titulo} className="card rounded-2xl border border-line bg-card p-6">
@@ -120,10 +127,10 @@ export default function Home() {
         </section>
 
         {/* CARTEIRINHA */}
-        <section id="carteirinha" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20">
+        <section id="como-funciona" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20">
           <div className="flex items-center gap-3">
             <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand text-white" aria-hidden><QrCode size={26} /></span>
-            <h2 className="text-3xl font-extrabold tracking-tight text-ink">Como funciona a carteirinha digital</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight text-ink">Como funciona</h2>
           </div>
           <ol className="mt-10 grid gap-5 md:grid-cols-3">
             {PASSOS.map((p) => (
@@ -165,10 +172,10 @@ export default function Home() {
         {/* CTA */}
         <section className="mx-auto max-w-6xl px-4 py-20 text-center">
           <h2 className="text-3xl font-extrabold tracking-tight text-ink">Pronto para começar?</h2>
-          <p className="mx-auto mt-2 max-w-xl text-lg text-muted">Explore o protótipo com dados fictícios e veja a carteirinha funcionando.</p>
+          <p className="mx-auto mt-2 max-w-xl text-lg text-muted">Profissional de saúde: crie sua conta e cadastre o primeiro paciente. Paciente: entre com o CPF e a senha que você recebeu.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/dashboard" className={btnClass('primary', '!min-h-14 !px-7 text-lg')}>Acessar meu painel <ArrowRight size={20} aria-hidden /></Link>
-            <Link to="/perfil" className={btnClass('secondary', '!min-h-14 !px-7 text-lg')}><UserRound size={20} aria-hidden /> Criar meu perfil</Link>
+            <Link to="/cadastro" className={btnClass('primary', '!min-h-14 !px-7 text-lg')}><Stethoscope size={20} aria-hidden /> Criar conta de profissional</Link>
+            <Link to="/entrar" className={btnClass('secondary', '!min-h-14 !px-7 text-lg')}>Entrar <ArrowRight size={20} aria-hidden /></Link>
           </div>
         </section>
       </main>
